@@ -1,3 +1,4 @@
+--CREATE USER
 CREATE OR REPLACE FUNCTION create_user(
     _id_user UUID,
     _name_user character varying,
@@ -19,6 +20,51 @@ BEGIN
     RETURN jsonb_build_object('id_user', _id_user, 'name_user', _name_user, 'nick_user', _nick_user, 'charge_user', _charge_user, 'signature_user', _signature_user, 'id_profile', _id_profile, 'id_super_user', _id_super_user, 'id_proyect', _id_proyect);
 END;
 $$ LANGUAGE plpgsql;
+
+--UPDATE USER
+
+CREATE OR REPLACE FUNCTION update_user(
+    _id_user UUID,
+    _name_user character varying,
+    _nick_user character varying,
+    _password_user character varying,
+    _charge_user character varying,
+    _signature_user character varying,
+    _id_profile UUID,
+    _id_super_user UUID,
+    _id_proyect UUID
+) RETURNS jsonb
+AS $$
+DECLARE
+    _id_user UUID;
+BEGIN
+    UPDATE users
+    SET name_user = _name_user,
+        nick_user = _nick_user,
+        password_user = PGP_SYM_ENCRYPT(_password_user, 'AES_KEY'),
+        charge_user = _charge_user,
+        signature_user = _signature_user,
+        id_profile = _id_profile,
+        id_super_user = _id_super_user,
+        id_proyect = _id_proyect
+    WHERE id_user = _id_user;
+    RETURN jsonb_build_object('id_user', _id_user, 'name_user', _name_user, 'nick_user', _nick_user, 'charge_user', _charge_user, 'signature_user', _signature_user, 'id_profile', _id_profile, 'id_super_user', _id_super_user, 'id_proyect', _id_proyect);
+END;
+$$ LANGUAGE plpgsql;
+
+--DELETE USER
+CREATE OR REPLACE FUNCTION delete_user(
+    _id_user UUID
+) RETURNS jsonb
+AS $$
+DECLARE
+BEGIN
+    DELETE FROM users
+    WHERE id_user = _id_user;
+    RETURN jsonb_build_object('id_user', _id_user, 'deleted', true);
+END;
+$$ LANGUAGE plpgsql;
+
 
 --VALIDATE USER
 CREATE OR REPLACE FUNCTION validate_user(
