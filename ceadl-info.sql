@@ -36,7 +36,6 @@ CREATE TABLE users (
     CONSTRAINT users_signature_uk UNIQUE (signature_user),
 	CONSTRAINT users_profile_fk FOREIGN KEY (id_profile) REFERENCES profiles(id_profile) ON UPDATE RESTRICT ON DELETE RESTRICT,
     CONSTRAINT users_super_user_fk FOREIGN KEY (id_super_user) REFERENCES super_user (id_super_user) ON UPDATE RESTRICT ON DELETE RESTRICT,
-    CONSTRAINT users_proyect_fk FOREIGN KEY (id_project) REFERENCES projects (id_project) ON UPDATE RESTRICT ON DELETE RESTRICT
 );
 
 CREATE TABLE founders (
