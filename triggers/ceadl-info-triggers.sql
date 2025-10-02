@@ -147,53 +147,53 @@ CREATE TRIGGER tg_delete_founder
 AFTER DELETE ON founders
 FOR EACH ROW EXECUTE PROCEDURE tg_delete_founder();
 
---Audit create proyect
-CREATE OR REPLACE FUNCTION tg_create_proyect()
+--Audit create project
+CREATE OR REPLACE FUNCTION tg_create_project()
 RETURNS TRIGGER AS $$
 BEGIN
   IF TG_OP = 'INSERT' THEN
     INSERT INTO audit (nick_user, action_audit, table_audit, last_audit, new_audit)
-    SELECT NEW.nick_user, 'INSERTAR', 'PROYECTS', row_to_json(NEW.*), null;
+  SELECT NEW.nick_user, 'INSERTAR', 'PROJECTS', row_to_json(NEW.*), null;
   END IF;
   RETURN NEW;
 END;
 $$ LANGUAGE plpgSQL;
 
-CREATE TRIGGER tg_create_proyect
-AFTER INSERT ON proyects
-FOR EACH ROW EXECUTE PROCEDURE tg_create_proyect();
+CREATE TRIGGER tg_create_project
+AFTER INSERT ON projects
+FOR EACH ROW EXECUTE PROCEDURE tg_create_project();
 
---Audit update proyect
-CREATE OR REPLACE FUNCTION tg_update_proyect()
+--Audit update project
+CREATE OR REPLACE FUNCTION tg_update_project()
 RETURNS TRIGGER AS $$
 BEGIN
   IF TG_OP = 'UPDATE' THEN
     INSERT INTO audit (nick_user, action_audit, table_audit, last_audit, new_audit)
-    SELECT NEW.nick_user, 'ACTUALIZAR', 'PROYECTS', row_to_json(OLD.*), row_to_json(NEW.*);
+  SELECT NEW.nick_user, 'ACTUALIZAR', 'PROJECTS', row_to_json(OLD.*), row_to_json(NEW.*);
   END IF;
   RETURN NEW;
 END;
 $$ LANGUAGE plpgSQL;
 
-CREATE TRIGGER tg_update_proyect
-AFTER UPDATE ON proyects
-FOR EACH ROW EXECUTE PROCEDURE tg_update_proyect();
+CREATE TRIGGER tg_update_project
+AFTER UPDATE ON projects
+FOR EACH ROW EXECUTE PROCEDURE tg_update_project();
 
---Audit delete proyect
-CREATE OR REPLACE FUNCTION tg_delete_proyect()
+--Audit delete project
+CREATE OR REPLACE FUNCTION tg_delete_project()
 RETURNS TRIGGER AS $$
 BEGIN
   IF TG_OP = 'DELETE' THEN
     INSERT INTO audit (nick_user, action_audit, table_audit, last_audit, new_audit)
-    SELECT OLD.nick_user, 'ELIMINAR', 'PROYECTS', row_to_json(OLD.*), null;
+  SELECT OLD.nick_user, 'ELIMINAR', 'PROJECTS', row_to_json(OLD.*), null;
   END IF;
   RETURN NEW;
 END;
 $$ LANGUAGE plpgSQL;
 
-CREATE TRIGGER tg_delete_proyect
-AFTER DELETE ON proyects
-FOR EACH ROW EXECUTE PROCEDURE tg_delete_proyect();
+CREATE TRIGGER tg_delete_project
+AFTER DELETE ON projects
+FOR EACH ROW EXECUTE PROCEDURE tg_delete_project();
 
 --Audit create especifics
 CREATE OR REPLACE FUNCTION tg_create_especifics()

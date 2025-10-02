@@ -1,59 +1,55 @@
---CREATE FOUNDER
+-- CREATE FOUNDER
 CREATE OR REPLACE FUNCTION create_founder(
-    _id_founder UUID,
-    _name_founder character varying,
-    _nick_founder character varying,
-    _password_founder character varying,
-    _charge_founder character varying,
-    _signature_founder character varying,
-    _id_profile UUID
+    _cod_founder VARCHAR,
+    _name_founder VARCHAR,
+    _id_user UUID
 ) RETURNS jsonb
 AS $$
 DECLARE
     _id_founder UUID;
 BEGIN
-    INSERT INTO founder (id_founder, name_founder, nick_founder, password_founder, charge_founder, signature_founder, id_profile)
-    VALUES (_id_founder, _name_founder, _nick_founder, PGP_SYM_ENCRYPT(_password_founder, 'AES_KEY'), _charge_founder, _signature_founder, _id_profile)
+    INSERT INTO founders (cod_founder, name_founder, id_user)
+    VALUES (_cod_founder, _name_founder, _id_user)
     RETURNING id_founder INTO _id_founder;
-    RETURN jsonb_build_object('id_founder', _id_founder, 'name_founder', _name_founder, 'nick_founder', _nick_founder, 'charge_founder', _charge_founder, 'signature_founder', _signature_founder, 'id_profile', _id_profile);
+    RETURN jsonb_build_object(
+        'id_founder', _id_founder,
+        'cod_founder', _cod_founder,
+        'name_founder', _name_founder,
+        'id_user', _id_user
+    );
 END;
 $$ LANGUAGE plpgsql;
 
---UPDATE FOUNDER
+-- UPDATE FOUNDER
 CREATE OR REPLACE FUNCTION update_founder(
     _id_founder UUID,
-    _name_founder character varying,
-    _nick_founder character varying,
-    _password_founder character varying,
-    _charge_founder character varying,
-    _signature_founder character varying,
-    _id_profile UUID
+    _cod_founder VARCHAR,
+    _name_founder VARCHAR,
+    _id_user UUID
 ) RETURNS jsonb
 AS $$
-DECLARE
-    _id_founder UUID;
 BEGIN
-    UPDATE founder
-    SET name_founder = _name_founder,
-        nick_founder = _nick_founder,
-        password_founder = PGP_SYM_ENCRYPT(_password_founder, 'AES_KEY'),
-        charge_founder = _charge_founder,
-        signature_founder = _signature_founder,
-        id_profile = _id_profile
+    UPDATE founders
+    SET cod_founder = _cod_founder,
+        name_founder = _name_founder,
+        id_user = _id_user
     WHERE id_founder = _id_founder;
-    RETURN jsonb_build_object('id_founder', _id_founder, 'name_founder', _name_founder, 'nick_founder', _nick_founder, 'charge_founder', _charge_founder, 'signature_founder', _signature_founder, 'id_profile', _id_profile);
+    RETURN jsonb_build_object(
+        'id_founder', _id_founder,
+        'cod_founder', _cod_founder,
+        'name_founder', _name_founder,
+        'id_user', _id_user
+    );
 END;
 $$ LANGUAGE plpgsql;
 
---DELETE FOUNDER
+-- DELETE FOUNDER
 CREATE OR REPLACE FUNCTION delete_founder(
     _id_founder UUID
 ) RETURNS jsonb
 AS $$
-DECLARE
-    _id_founder UUID;
 BEGIN
-    DELETE FROM founder
+    DELETE FROM founders
     WHERE id_founder = _id_founder;
     RETURN jsonb_build_object('id_founder', _id_founder, 'deleted', true);
 END;

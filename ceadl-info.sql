@@ -6,15 +6,16 @@ CREATE TABLE super_user (
     id_super_user UUID DEFAULT gen_random_uuid() NOT NULL,
     super_user varchar(50) NOT NULL,
     password varchar(255) NOT NULL,
+    CONSTRAINT super_user_pk PRIMARY KEY (id_super_user),
     CONSTRAINT super_user_super_user_uk UNIQUE (super_user)
 );
 
 CREATE TABLE profiles (
 	id_profile UUID DEFAULT gen_random_uuid() NOT NULL,
-    profile varchar(50) NOT NULL,
-    id_super_user UUID,
+    name_profile varchar(50) NOT NULL,
+    id_super_user UUID not NULL,
     CONSTRAINT profiles_pk PRIMARY KEY (id_profile),
-    CONSTRAINT profiles_uk UNIQUE (profile),
+    CONSTRAINT profiles_uk UNIQUE (name_profile),
     CONSTRAINT profiles_super_user_fk FOREIGN KEY (id_super_user) REFERENCES super_user (id_super_user) ON UPDATE RESTRICT ON DELETE RESTRICT
 );
 
@@ -35,7 +36,7 @@ CREATE TABLE users (
     CONSTRAINT users_nick_uk UNIQUE (nick_user),
     CONSTRAINT users_signature_uk UNIQUE (signature_user),
 	CONSTRAINT users_profile_fk FOREIGN KEY (id_profile) REFERENCES profiles(id_profile) ON UPDATE RESTRICT ON DELETE RESTRICT,
-    CONSTRAINT users_super_user_fk FOREIGN KEY (id_super_user) REFERENCES super_user (id_super_user) ON UPDATE RESTRICT ON DELETE RESTRICT,
+    CONSTRAINT users_super_user_fk FOREIGN KEY (id_super_user) REFERENCES super_user (id_super_user) ON UPDATE RESTRICT ON DELETE RESTRICT
 );
 
 CREATE TABLE founders (
@@ -52,15 +53,15 @@ CREATE TABLE founders (
 
 CREATE TABLE projects (
     id_project UUID DEFAULT gen_random_uuid() NOT NULL,
-    create_proyect timestamp NOT NULL DEFAULT now(),
-    cod_proyect varchar(100) NOT NULL,
-    name_proyect varchar(200) NOT NULL,
-    objetive text NOT NULL,
+    create_project timestamp NOT NULL DEFAULT now(),
+    cod_project varchar(100) NOT NULL,
+    name_project varchar(200) NOT NULL,
+    objetive_project text NOT NULL,
     id_founder UUID NOT NULL,
     id_user UUID NOT NULL,
     CONSTRAINT projects_pk PRIMARY KEY (id_project),
-    CONSTRAINT projects_uk UNIQUE (cod_proyect),
-    CONSTRAINT projects_name_uk UNIQUE (name_proyect),
+    CONSTRAINT projects_uk UNIQUE (cod_project),
+    CONSTRAINT projects_name_uk UNIQUE (name_project),
     CONSTRAINT projects_founder_fk FOREIGN KEY (id_founder) REFERENCES founders(id_founder) ON UPDATE RESTRICT ON DELETE RESTRICT,
     CONSTRAINT projects_user_fk FOREIGN KEY (id_user) REFERENCES users (id_user) ON UPDATE RESTRICT ON DELETE RESTRICT
 );
@@ -75,7 +76,7 @@ CREATE TABLE especifics (
     CONSTRAINT especifics_pk PRIMARY KEY (id_especific),
     CONSTRAINT especifics_uk UNIQUE (especific),
     CONSTRAINT especifics_user_fk FOREIGN KEY (id_user) REFERENCES users (id_user) ON UPDATE RESTRICT ON DELETE RESTRICT,
-    CONSTRAINT especifics_proyect_fk FOREIGN KEY (id_project) REFERENCES projects (id_project) ON UPDATE RESTRICT ON DELETE RESTRICT
+    CONSTRAINT especifics_project_fk FOREIGN KEY (id_project) REFERENCES projects (id_project) ON UPDATE RESTRICT ON DELETE RESTRICT
 );
 
 CREATE TABLE project_results (
@@ -87,8 +88,8 @@ CREATE TABLE project_results (
     id_user UUID NOT NULL,
 	CONSTRAINT project_results_pk PRIMARY KEY (id_project_result),
 	CONSTRAINT project_result_uk UNIQUE (project_result),
-    CONSTRAINT project_result_proyect_fk FOREIGN KEY (id_project) REFERENCES projects (id_project) ON UPDATE RESTRICT ON DELETE RESTRICT,
-    CONSTRAINT project_result_user_fk FOREIGN KEY (id_user) REFERENCES users (id_user) ON UPDATE RESTRICT ON DELETE RESTRICT,
+    CONSTRAINT project_result_project_fk FOREIGN KEY (id_project) REFERENCES projects (id_project) ON UPDATE RESTRICT ON DELETE RESTRICT,
+    CONSTRAINT project_result_user_fk FOREIGN KEY (id_user) REFERENCES users (id_user) ON UPDATE RESTRICT ON DELETE RESTRICT
 );
 
 CREATE TABLE project_activities(
@@ -102,8 +103,8 @@ CREATE TABLE project_activities(
     CONSTRAINT project_activity_pk PRIMARY KEY (id_project_activity),
     CONSTRAINT project_activity_uk UNIQUE (project_activity),
     CONSTRAINT project_activity_category_uk UNIQUE (category),
-    CONSTRAINT project_activity_proyect_fk FOREIGN KEY (id_project) REFERENCES projects (id_project) ON UPDATE RESTRICT ON DELETE RESTRICT,
-    CONSTRAINT project_activity_user_fk FOREIGN KEY (id_user) REFERENCES users (id_user) ON UPDATE RESTRICT ON DELETE RESTRICT,
+    CONSTRAINT project_activity_project_fk FOREIGN KEY (id_project) REFERENCES projects (id_project) ON UPDATE RESTRICT ON DELETE RESTRICT,
+    CONSTRAINT project_activity_user_fk FOREIGN KEY (id_user) REFERENCES users (id_user) ON UPDATE RESTRICT ON DELETE RESTRICT
 );
 
 CREATE TABLE activities (
@@ -123,11 +124,11 @@ CREATE TABLE activities (
     id_project_result UUID NOT NULL,
     id_project_activity UUID NOT NULL,
     CONSTRAINT activities_pk PRIMARY KEY (id_activity),
-    CONSTRAINT activities_proyect_fk FOREIGN KEY (id_project) REFERENCES projects (id_project) ON UPDATE RESTRICT ON DELETE RESTRICT,
+    CONSTRAINT activities_project_fk FOREIGN KEY (id_project) REFERENCES projects (id_project) ON UPDATE RESTRICT ON DELETE RESTRICT,
     CONSTRAINT activities_especific_fk FOREIGN KEY (id_especific) REFERENCES especifics (id_especific) ON UPDATE RESTRICT ON DELETE RESTRICT,
     CONSTRAINT activities_project_result_fk FOREIGN KEY (id_project_result) REFERENCES project_results (id_project_result) ON UPDATE RESTRICT ON DELETE RESTRICT,
     CONSTRAINT activities_project_activity_fk FOREIGN KEY (id_project_activity) REFERENCES project_activities (id_project_activity) ON UPDATE RESTRICT ON DELETE RESTRICT,
-    CONSTRAINT activities_user_fk FOREIGN KEY (id_user) REFERENCES users (id_user) ON UPDATE RESTRICT ON DELETE RESTRICT,
+    CONSTRAINT activities_user_fk FOREIGN KEY (id_user) REFERENCES users (id_user) ON UPDATE RESTRICT ON DELETE RESTRICT
 );
 
 CREATE TABLE reports (
@@ -141,10 +142,10 @@ CREATE TABLE reports (
     approved boolean,
     id_user UUID NOT NULL,
     id_project UUID NOT NULL,
-    id_activity UUID,
+    id_activity UUID NOT NULL,
     CONSTRAINT reports_pk PRIMARY KEY (id_report),
     CONSTRAINT reports_user_fk FOREIGN KEY (id_user) REFERENCES users (id_user) ON UPDATE RESTRICT ON DELETE RESTRICT,
-    CONSTRAINT reports_proyect_fk FOREIGN KEY (id_project) REFERENCES projects (id_project) ON UPDATE RESTRICT ON DELETE RESTRICT,
+    CONSTRAINT reports_project_fk FOREIGN KEY (id_project) REFERENCES projects (id_project) ON UPDATE RESTRICT ON DELETE RESTRICT,
     CONSTRAINT reports_activity_fk FOREIGN KEY (id_activity) REFERENCES activities (id_activity) ON UPDATE RESTRICT ON DELETE RESTRICT
 );
 
@@ -174,11 +175,11 @@ CREATE TABLE applications (
     approved boolean DEFAULT false,
     id_project UUID NOT NULL,
     id_user UUID NOT NULL,
-    id_activity UUID,
+    id_activity UUID NOT NULL,
     CONSTRAINT applications_pk PRIMARY KEY (id_application),
-    CONSTRAINT applications_proyect_fk FOREIGN KEY (id_project) REFERENCES projects (id_project) ON UPDATE RESTRICT ON DELETE RESTRICT,
+    CONSTRAINT applications_project_fk FOREIGN KEY (id_project) REFERENCES projects (id_project) ON UPDATE RESTRICT ON DELETE RESTRICT,
     CONSTRAINT applications_user_fk FOREIGN KEY (id_user) REFERENCES users (id_user) ON UPDATE RESTRICT ON DELETE RESTRICT,
-    CONSTRAINT applications_id_activity_fk FOREIGN KEY (id_activity) REFERENCES activities (id_activity) ON UPDATE RESTRICT ON DELETE RESTRICT,
+    CONSTRAINT applications_id_activity_fk FOREIGN KEY (id_activity) REFERENCES activities (id_activity) ON UPDATE RESTRICT ON DELETE RESTRICT
 );
 
 CREATE TABLE budgets (
@@ -188,13 +189,13 @@ CREATE TABLE budgets (
     description varchar(200),
     import_usd numeric(10,2),
     import_bob numeric(10,2),
-    id_activity UUID NOT NULL,
+    id_application UUID NOT NULL,
     id_founder UUID NOT NULL,
     id_user UUID NOT NULL,
     CONSTRAINT budgets_pk PRIMARY KEY (id_budget),
-    CONSTRAINT budgets_id_activity_fk FOREIGN KEY (id_activity) REFERENCES activities (id_activity) ON UPDATE RESTRICT ON DELETE RESTRICT,
+    CONSTRAINT budgets_id_application_fk FOREIGN KEY (id_application) REFERENCES applications (id_application) ON UPDATE RESTRICT ON DELETE RESTRICT,
     CONSTRAINT budgets_founder_fk FOREIGN KEY (id_founder) REFERENCES founders (id_founder) ON UPDATE RESTRICT ON DELETE RESTRICT,
-    CONSTRAINT budgets_user_fk FOREIGN KEY (id_user) REFERENCES users (id_user) ON UPDATE RESTRICT ON DELETE RESTRICT,
+    CONSTRAINT budgets_user_fk FOREIGN KEY (id_user) REFERENCES users (id_user) ON UPDATE RESTRICT ON DELETE RESTRICT
 );
 
 CREATE TABLE accountabilities (
@@ -208,7 +209,7 @@ CREATE TABLE accountabilities (
     id_activity UUID NOT NULL,
     CONSTRAINT accountabilities_pk PRIMARY KEY (id_accountability),
     CONSTRAINT accountabilities_user_fk FOREIGN KEY (id_user) REFERENCES users (id_user) ON UPDATE RESTRICT ON DELETE RESTRICT,
-    CONSTRAINT accountabilities_proyect_fk FOREIGN KEY (id_project) REFERENCES projects (id_project) ON UPDATE RESTRICT ON DELETE RESTRICT,
+    CONSTRAINT accountabilities_project_fk FOREIGN KEY (id_project) REFERENCES projects (id_project) ON UPDATE RESTRICT ON DELETE RESTRICT,
     CONSTRAINT accountabilities_id_activity_fk FOREIGN KEY (id_activity) REFERENCES activities (id_activity) ON UPDATE RESTRICT ON DELETE RESTRICT
 );
 
@@ -220,10 +221,10 @@ CREATE TABLE surrenders (
     description text NOT NULL,
     import_usd numeric(10,2),
     import_bob numeric(10,2),
-    id_activity UUID NOT NULL,
+    id_accountability UUID NOT NULL,
     id_user UUID NOT NULL,
     CONSTRAINT surrenders_pk PRIMARY KEY (id_surrender),
-    CONSTRAINT surrenders_id_activity_fk FOREIGN KEY (id_activity) REFERENCES activities (id_activity) ON UPDATE RESTRICT ON DELETE RESTRICT,
+    CONSTRAINT surrenders_id_accountability_fk FOREIGN KEY (id_accountability) REFERENCES accountabilities (id_accountability) ON UPDATE RESTRICT ON DELETE RESTRICT,
     CONSTRAINT surrenders_user_fk FOREIGN KEY (id_user) REFERENCES users (id_user) ON UPDATE RESTRICT ON DELETE RESTRICT
 );
 
@@ -272,15 +273,15 @@ CREATE TABLE data_base_participants (
 	organization varchar(200) NOT NULL,
 	phone varchar(50),
 	type_participant varchar(250) NOT NULL,
-	id_project UUID NOT NULL,
-    id_founder UUID NOT NULL,
     municipality varchar(100),
     type_organization varchar(200),
+	id_project UUID NOT NULL,
+    id_founder UUID NOT NULL,
 	id_activity UUID NOT NULL,
 	id_user UUID NOT NULL,
 	CONSTRAINT data_base_pk PRIMARY KEY (id_participant),
     CONSTRAINT data_base_user_fk FOREIGN KEY (id_user) REFERENCES users (id_user) ON UPDATE RESTRICT ON DELETE RESTRICT,
     CONSTRAINT data_base_activity_fk FOREIGN KEY (id_activity) REFERENCES activities (id_activity) ON UPDATE RESTRICT ON DELETE RESTRICT,
-    CONSTRAINT data_base_proyect_fk FOREIGN KEY (id_project) REFERENCES projects (id_project) ON UPDATE RESTRICT ON DELETE RESTRICT,
+    CONSTRAINT data_base_project_fk FOREIGN KEY (id_project) REFERENCES projects (id_project) ON UPDATE RESTRICT ON DELETE RESTRICT,
     CONSTRAINT data_base_founder_fk FOREIGN KEY (id_founder) REFERENCES founders (id_founder) ON UPDATE RESTRICT ON DELETE RESTRICT
 );

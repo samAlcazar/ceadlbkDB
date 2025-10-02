@@ -1,47 +1,37 @@
---CREATE PROFILE
+-- CREATE PROFILE
 CREATE OR REPLACE FUNCTION create_profile(
-    _id_profile UUID,
-    _name_profile character varying,
-    _description_profile character varying
+    _name_profile VARCHAR,
+    _id_super_user UUID
 ) RETURNS jsonb
 AS $$
-DECLARE
-    _id_profile UUID;
 BEGIN
-    INSERT INTO profile (id_profile, name_profile, description_profile)
-    VALUES (_id_profile, _name_profile, _description_profile)
-    RETURNING id_profile INTO _id_profile;
-    RETURN jsonb_build_object('id_profile', _id_profile, 'name_profile', _name_profile, 'description_profile', _description_profile);
+    INSERT INTO profiles (name_profile, id_super_user)
+    VALUES (_name_profile, _id_super_user);
+    RETURN jsonb_build_object('name_profile', _name_profile, 'id_super_user', _id_super_user);
 END;
 $$ LANGUAGE plpgsql;
 
---UPDATE PROFILE
+-- UPDATE PROFILE
 CREATE OR REPLACE FUNCTION update_profile(
     _id_profile UUID,
-    _name_profile character varying,
-    _description_profile character varying
+    _name_profile VARCHAR
 ) RETURNS jsonb
 AS $$
-DECLARE
-    _id_profile UUID;
 BEGIN
-    UPDATE profile
-    SET name_profile = _name_profile,
-        description_profile = _description_profile
+    UPDATE profiles
+    SET name_profile = _name_profile
     WHERE id_profile = _id_profile;
-    RETURN jsonb_build_object('id_profile', _id_profile, 'name_profile', _name_profile, 'description_profile', _description_profile);
+    RETURN jsonb_build_object('id_profile', _id_profile, 'profile', _name_profile);
 END;
 $$ LANGUAGE plpgsql;
 
---DELETE PROFILE
+-- DELETE PROFILE
 CREATE OR REPLACE FUNCTION delete_profile(
     _id_profile UUID
 ) RETURNS jsonb
 AS $$
-DECLARE
-    _id_profile UUID;
 BEGIN
-    DELETE FROM profile
+    DELETE FROM profiles
     WHERE id_profile = _id_profile;
     RETURN jsonb_build_object('id_profile', _id_profile, 'deleted', true);
 END;
