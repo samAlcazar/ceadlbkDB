@@ -4,13 +4,11 @@
 CREATE OR REPLACE FUNCTION tg_create_profile()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'INSERT' THEN
-    INSERT INTO audit_profile (nick, action_audit_profile, table_audit_profile, last_audit_profile, new_audit_profile)
-    SELECT NEW.nick, 'INSERTAR', 'PROFILE', row_to_json(NEW.*), null;
-  END IF;
+  INSERT INTO audit_profile (id_user, action_audit_profile, table_audit_profile, last_audit_profile, new_audit_profile)
+  VALUES (NEW.id_super_user, 'INSERTAR', 'PROFILE', NULL, row_to_json(NEW));
   RETURN NEW;
 END;
-$$ LANGUAGE plpgSQL;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tg_create_profile
 AFTER INSERT ON profiles
@@ -20,13 +18,11 @@ FOR EACH ROW EXECUTE PROCEDURE tg_create_profile();
 CREATE OR REPLACE FUNCTION tg_update_profile()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'UPDATE' THEN
-    INSERT INTO audit_profile (nick, action_audit_profile, table_audit_profile, last_audit_profile, new_audit_profile)
-    SELECT NEW.nick, 'ACTUALIZAR', 'PROFILE', row_to_json(OLD.*), row_to_json(NEW.*);
-  END IF;
+  INSERT INTO audit_profile (id_user, action_audit_profile, table_audit_profile, last_audit_profile, new_audit_profile)
+  VALUES (NEW.id_super_user, 'ACTUALIZAR', 'PROFILE', row_to_json(OLD), row_to_json(NEW));
   RETURN NEW;
 END;
-$$ LANGUAGE plpgSQL;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tg_update_profile
 AFTER UPDATE ON profiles
@@ -36,80 +32,67 @@ FOR EACH ROW EXECUTE PROCEDURE tg_update_profile();
 CREATE OR REPLACE FUNCTION tg_delete_profile()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'DELETE' THEN
-    INSERT INTO audit_profile (nick, action_audit_profile, table_audit_profile, last_audit_profile, new_audit_profile)
-    SELECT OLD.nick, 'ELIMINAR', 'PROFILE', row_to_json(OLD.*), null;
-  END IF;
-  RETURN NEW;
+  INSERT INTO audit_profile (id_user, action_audit_profile, table_audit_profile, last_audit_profile, new_audit_profile)
+  VALUES (OLD.id_super_user, 'ELIMINAR', 'PROFILE', row_to_json(OLD), NULL);
+  RETURN OLD;
 END;
-$$ LANGUAGE plpgSQL;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tg_delete_profile
-AFTER DELETE ON profiles
+BEFORE DELETE ON profiles
 FOR EACH ROW EXECUTE PROCEDURE tg_delete_profile();
 
 --Audit create user
 CREATE OR REPLACE FUNCTION tg_create_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'INSERT' THEN
-    INSERT INTO audit_profile (nick, action_audit_profile, table_audit_profile, last_audit_profile, new_audit_profile)
-    SELECT NEW.nick, 'INSERTAR', 'USER', row_to_json(NEW.*), null;
-  END IF;
+  INSERT INTO audit_profile (id_user, action_audit_profile, table_audit_profile, last_audit_profile, new_audit_profile)
+  VALUES (NEW.id_user, 'INSERTAR', 'USER', NULL, row_to_json(NEW));
   RETURN NEW;
 END;
-$$ LANGUAGE plpgSQL;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tg_create_user
 AFTER INSERT ON users
 FOR EACH ROW EXECUTE PROCEDURE tg_create_user();
 
 --Audit update user
-CREATE OR REPLACE FUNCTION tg_update_profile()
+CREATE OR REPLACE FUNCTION tg_update_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'UPDATE' THEN
-    INSERT INTO audit_profile (nick, action_audit_profile, table_audit_profile, last_audit_profile, new_audit_profile)
-    SELECT NEW.nick, 'ACTUALIZAR', 'USER', row_to_json(OLD.*), row_to_json(NEW.*);
-  END IF;
+  INSERT INTO audit_profile (id_user, action_audit_profile, table_audit_profile, last_audit_profile, new_audit_profile)
+  VALUES (NEW.id_user, 'ACTUALIZAR', 'USER', row_to_json(OLD), row_to_json(NEW));
   RETURN NEW;
 END;
-$$ LANGUAGE plpgSQL;
+$$ LANGUAGE plpgsql;
 
-CREATE TRIGGER tg_update_profile
+CREATE TRIGGER tg_update_user
 AFTER UPDATE ON users
-FOR EACH ROW EXECUTE PROCEDURE tg_update_profile();
+FOR EACH ROW EXECUTE PROCEDURE tg_update_user();
 
 --Audit delete user
-CREATE OR REPLACE FUNCTION tg_delete_profile()
+CREATE OR REPLACE FUNCTION tg_delete_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'DELETE' THEN
-    INSERT INTO audit_profile (nick, action_audit_profile, table_audit_profile, last_audit_profile, new_audit_profile)
-    SELECT OLD.nick, 'ELIMINAR', 'USER', row_to_json(OLD.*), null;
-  END IF;
-  RETURN NEW;
+  INSERT INTO audit_profile (id_user, action_audit_profile, table_audit_profile, last_audit_profile, new_audit_profile)
+  VALUES (OLD.id_user, 'ELIMINAR', 'USER', row_to_json(OLD), NULL);
+  RETURN OLD;
 END;
-$$ LANGUAGE plpgSQL;
+$$ LANGUAGE plpgsql;
 
-CREATE TRIGGER tg_delete_profile
-AFTER DELETE ON users
-FOR EACH ROW EXECUTE PROCEDURE tg_delete_profile();
+CREATE TRIGGER tg_delete_user
+BEFORE DELETE ON users
+FOR EACH ROW EXECUTE PROCEDURE tg_delete_user();
 
-
-
---AUDIT
 --Audit create founder
 CREATE OR REPLACE FUNCTION tg_create_founder()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'INSERT' THEN
-    INSERT INTO audit (nick_user, action_audit, table_audit, last_audit, new_audit)
-    SELECT NEW.nick_user, 'INSERTAR', 'FOUNDERS', row_to_json(NEW.*), null;
-  END IF;
+  INSERT INTO audit (id_user, action_audit, table_audit, last_audit, new_audit)
+  VALUES (NEW.id_user, 'INSERTAR', 'FOUNDERS', NULL, row_to_json(NEW));
   RETURN NEW;
 END;
-$$ LANGUAGE plpgSQL;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tg_create_founder
 AFTER INSERT ON founders
@@ -119,13 +102,11 @@ FOR EACH ROW EXECUTE PROCEDURE tg_create_founder();
 CREATE OR REPLACE FUNCTION tg_update_founder()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'UPDATE' THEN
-    INSERT INTO audit (nick_user, action_audit, table_audit, last_audit, new_audit)
-    SELECT NEW.nick_user, 'ACTUALIZAR', 'FOUNDERS', row_to_json(OLD.*), row_to_json(NEW.*);
-  END IF;
+  INSERT INTO audit (id_user, action_audit, table_audit, last_audit, new_audit)
+  VALUES (NEW.id_user, 'ACTUALIZAR', 'FOUNDERS', row_to_json(OLD), row_to_json(NEW));
   RETURN NEW;
 END;
-$$ LANGUAGE plpgSQL;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tg_update_founder
 AFTER UPDATE ON founders
@@ -135,29 +116,25 @@ FOR EACH ROW EXECUTE PROCEDURE tg_update_founder();
 CREATE OR REPLACE FUNCTION tg_delete_founder()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'DELETE' THEN
-    INSERT INTO audit (nick_user, action_audit, table_audit, last_audit, new_audit)
-    SELECT OLD.nick_user, 'ELIMINAR', 'FOUNDERS', row_to_json(OLD.*), null;
-  END IF;
-  RETURN NEW;
+  INSERT INTO audit (id_user, action_audit, table_audit, last_audit, new_audit)
+  VALUES (OLD.id_user, 'ELIMINAR', 'FOUNDERS', row_to_json(OLD), NULL);
+  RETURN OLD;
 END;
-$$ LANGUAGE plpgSQL;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tg_delete_founder
-AFTER DELETE ON founders
+BEFORE DELETE ON founders
 FOR EACH ROW EXECUTE PROCEDURE tg_delete_founder();
 
 --Audit create project
 CREATE OR REPLACE FUNCTION tg_create_project()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'INSERT' THEN
-    INSERT INTO audit (nick_user, action_audit, table_audit, last_audit, new_audit)
-  SELECT NEW.nick_user, 'INSERTAR', 'PROJECTS', row_to_json(NEW.*), null;
-  END IF;
+  INSERT INTO audit (id_user, action_audit, table_audit, last_audit, new_audit)
+  VALUES (NEW.id_user, 'INSERTAR', 'PROJECTS', NULL, row_to_json(NEW));
   RETURN NEW;
 END;
-$$ LANGUAGE plpgSQL;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tg_create_project
 AFTER INSERT ON projects
@@ -167,13 +144,11 @@ FOR EACH ROW EXECUTE PROCEDURE tg_create_project();
 CREATE OR REPLACE FUNCTION tg_update_project()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'UPDATE' THEN
-    INSERT INTO audit (nick_user, action_audit, table_audit, last_audit, new_audit)
-  SELECT NEW.nick_user, 'ACTUALIZAR', 'PROJECTS', row_to_json(OLD.*), row_to_json(NEW.*);
-  END IF;
+  INSERT INTO audit (id_user, action_audit, table_audit, last_audit, new_audit)
+  VALUES (NEW.id_user, 'ACTUALIZAR', 'PROJECTS', row_to_json(OLD), row_to_json(NEW));
   RETURN NEW;
 END;
-$$ LANGUAGE plpgSQL;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tg_update_project
 AFTER UPDATE ON projects
@@ -183,29 +158,25 @@ FOR EACH ROW EXECUTE PROCEDURE tg_update_project();
 CREATE OR REPLACE FUNCTION tg_delete_project()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'DELETE' THEN
-    INSERT INTO audit (nick_user, action_audit, table_audit, last_audit, new_audit)
-  SELECT OLD.nick_user, 'ELIMINAR', 'PROJECTS', row_to_json(OLD.*), null;
-  END IF;
-  RETURN NEW;
+  INSERT INTO audit (id_user, action_audit, table_audit, last_audit, new_audit)
+  VALUES (OLD.id_user, 'ELIMINAR', 'PROJECTS', row_to_json(OLD), NULL);
+  RETURN OLD;
 END;
-$$ LANGUAGE plpgSQL;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tg_delete_project
-AFTER DELETE ON projects
+BEFORE DELETE ON projects
 FOR EACH ROW EXECUTE PROCEDURE tg_delete_project();
 
 --Audit create especifics
 CREATE OR REPLACE FUNCTION tg_create_especifics()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'INSERT' THEN
-    INSERT INTO audit (nick_user, action_audit, table_audit, last_audit, new_audit)
-    SELECT NEW.nick_user, 'INSERTAR', 'ESPECIFICS', row_to_json(NEW.*), null;
-  END IF;
+  INSERT INTO audit (id_user, action_audit, table_audit, last_audit, new_audit)
+  VALUES (NEW.id_user, 'INSERTAR', 'ESPECIFICS', NULL, row_to_json(NEW));
   RETURN NEW;
 END;
-$$ LANGUAGE plpgSQL;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tg_create_especifics
 AFTER INSERT ON especifics
@@ -215,13 +186,11 @@ FOR EACH ROW EXECUTE PROCEDURE tg_create_especifics();
 CREATE OR REPLACE FUNCTION tg_update_especifics()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'UPDATE' THEN
-    INSERT INTO audit (nick_user, action_audit, table_audit, last_audit, new_audit)
-    SELECT NEW.nick_user, 'ACTUALIZAR', 'ESPECIFICS', row_to_json(OLD.*), row_to_json(NEW.*);
-  END IF;
+  INSERT INTO audit (id_user, action_audit, table_audit, last_audit, new_audit)
+  VALUES (NEW.id_user, 'ACTUALIZAR', 'ESPECIFICS', row_to_json(OLD), row_to_json(NEW));
   RETURN NEW;
 END;
-$$ LANGUAGE plpgSQL;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tg_update_especifics
 AFTER UPDATE ON especifics
@@ -231,16 +200,14 @@ FOR EACH ROW EXECUTE PROCEDURE tg_update_especifics();
 CREATE OR REPLACE FUNCTION tg_delete_especifics()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'DELETE' THEN
-    INSERT INTO audit (nick_user, action_audit, table_audit, last_audit, new_audit)
-    SELECT OLD.nick_user, 'ELIMINAR', 'ESPECIFICS', row_to_json(OLD.*), null;
-  END IF;
-  RETURN NEW;
+  INSERT INTO audit (id_user, action_audit, table_audit, last_audit, new_audit)
+  VALUES (OLD.id_user, 'ELIMINAR', 'ESPECIFICS', row_to_json(OLD), NULL);
+  RETURN OLD;
 END;
-$$ LANGUAGE plpgSQL;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tg_delete_especifics
-AFTER DELETE ON especifics
+BEFORE DELETE ON especifics
 FOR EACH ROW EXECUTE PROCEDURE tg_delete_especifics();
 
 --AUDIT ACTIVITIES
@@ -248,13 +215,11 @@ FOR EACH ROW EXECUTE PROCEDURE tg_delete_especifics();
 CREATE OR REPLACE FUNCTION tg_create_activity()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'INSERT' THEN
-    INSERT INTO audit_activity (nick_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
-    SELECT NEW.nick_user, 'INSERTAR', 'ACTIVITIES', row_to_json(NEW.*), null;
-  END IF;
+  INSERT INTO audit_activity (id_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
+  VALUES (NEW.id_user, 'INSERTAR', 'ACTIVITIES', NULL, row_to_json(NEW));
   RETURN NEW;
 END;
-$$ LANGUAGE plpgSQL;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tg_create_activity
 AFTER INSERT ON activities
@@ -264,13 +229,11 @@ FOR EACH ROW EXECUTE PROCEDURE tg_create_activity();
 CREATE OR REPLACE FUNCTION tg_update_activity()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'UPDATE' THEN
-    INSERT INTO audit_activity (nick_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
-    SELECT NEW.nick_user, 'ACTUALIZAR', 'ACTIVITIES', row_to_json(OLD.*), row_to_json(NEW.*);
-  END IF;
+  INSERT INTO audit_activity (id_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
+  VALUES (NEW.id_user, 'ACTUALIZAR', 'ACTIVITIES', row_to_json(OLD), row_to_json(NEW));
   RETURN NEW;
 END;
-$$ LANGUAGE plpgSQL;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tg_update_activity
 AFTER UPDATE ON activities
@@ -280,30 +243,25 @@ FOR EACH ROW EXECUTE PROCEDURE tg_update_activity();
 CREATE OR REPLACE FUNCTION tg_delete_activity()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'DELETE' THEN
-    INSERT INTO audit_activity (nick_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
-    SELECT OLD.nick_user, 'ELIMINAR', 'ACTIVITIES', row_to_json(OLD.*), null;
-  END IF;
-  RETURN NEW;
+  INSERT INTO audit_activity (id_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
+  VALUES (OLD.id_user, 'ELIMINAR', 'ACTIVITIES', row_to_json(OLD), NULL);
+  RETURN OLD;
 END;
-
-$$ LANGUAGE plpgSQL;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tg_delete_activity
-AFTER DELETE ON activities
+BEFORE DELETE ON activities
 FOR EACH ROW EXECUTE PROCEDURE tg_delete_activity();
 
 --Audit create reports
 CREATE OR REPLACE FUNCTION tg_create_report()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'INSERT' THEN
-    INSERT INTO audit_activity (nick_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
-    SELECT NEW.nick_user, 'INSERTAR', 'REPORTS', row_to_json(NEW.*), null;
-  END IF;
+  INSERT INTO audit_activity (id_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
+  VALUES (NEW.id_user, 'INSERTAR', 'REPORTS', NULL, row_to_json(NEW));
   RETURN NEW;
 END;
-$$ LANGUAGE plpgSQL;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tg_create_report
 AFTER INSERT ON reports
@@ -313,46 +271,39 @@ FOR EACH ROW EXECUTE PROCEDURE tg_create_report();
 CREATE OR REPLACE FUNCTION tg_update_report()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'UPDATE' THEN
-    INSERT INTO audit_activity (nick_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
-    SELECT NEW.nick_user, 'ACTUALIZAR', 'REPORTS', row_to_json(OLD.*), row_to_json(NEW.*);
-  END IF;
+  INSERT INTO audit_activity (id_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
+  VALUES (NEW.id_user, 'ACTUALIZAR', 'REPORTS', row_to_json(OLD), row_to_json(NEW));
   RETURN NEW;
 END;
-$$ LANGUAGE plpgSQL;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tg_update_report
 AFTER UPDATE ON reports
 FOR EACH ROW EXECUTE PROCEDURE tg_update_report();
 
 --Audit delete reports
-CREATE OR REPLACE FUNCTION tg_delete_reports()
+CREATE OR REPLACE FUNCTION tg_delete_report()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'DELETE' THEN
-    INSERT INTO audit_activity (nick_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
-    SELECT OLD.nick_user, 'ELIMINAR', 'REPORTS', row_to_json(OLD.*), null;
-  END IF;
-  RETURN NEW;
+  INSERT INTO audit_activity (id_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
+  VALUES (OLD.id_user, 'ELIMINAR', 'REPORTS', row_to_json(OLD), NULL);
+  RETURN OLD;
 END;
+$$ LANGUAGE plpgsql;
 
-$$ LANGUAGE plpgSQL;
-
-CREATE TRIGGER tg_delete_reports
-AFTER DELETE ON reports
-FOR EACH ROW EXECUTE PROCEDURE tg_delete_reports();
+CREATE TRIGGER tg_delete_report
+BEFORE DELETE ON reports
+FOR EACH ROW EXECUTE PROCEDURE tg_delete_report();
 
 --Audit create quantitative
 CREATE OR REPLACE FUNCTION tg_create_quantitative()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'INSERT' THEN
-    INSERT INTO audit_activity (nick_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
-    SELECT NEW.nick_user, 'INSERTAR', 'QUANTITATIVES', row_to_json(NEW.*), null;
-  END IF;
+  INSERT INTO audit_activity (id_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
+  VALUES (NEW.id_user, 'INSERTAR', 'QUANTITATIVES', NULL, row_to_json(NEW));
   RETURN NEW;
 END;
-$$ LANGUAGE plpgSQL;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tg_create_quantitative
 AFTER INSERT ON quantitatives
@@ -362,13 +313,11 @@ FOR EACH ROW EXECUTE PROCEDURE tg_create_quantitative();
 CREATE OR REPLACE FUNCTION tg_update_quantitative()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'UPDATE' THEN
-    INSERT INTO audit_activity (nick_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
-    SELECT NEW.nick_user, 'ACTUALIZAR', 'QUANTITATIVES', row_to_json(OLD.*), row_to_json(NEW.*);
-  END IF;
+  INSERT INTO audit_activity (id_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
+  VALUES (NEW.id_user, 'ACTUALIZAR', 'QUANTITATIVES', row_to_json(OLD), row_to_json(NEW));
   RETURN NEW;
 END;
-$$ LANGUAGE plpgSQL;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tg_update_quantitative
 AFTER UPDATE ON quantitatives
@@ -378,30 +327,25 @@ FOR EACH ROW EXECUTE PROCEDURE tg_update_quantitative();
 CREATE OR REPLACE FUNCTION tg_delete_quantitative()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'DELETE' THEN
-    INSERT INTO audit_activity (nick_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
-    SELECT OLD.nick_user, 'ELIMINAR', 'QUANTITATIVES', row_to_json(OLD.*), null;
-  END IF;
-  RETURN NEW;
+  INSERT INTO audit_activity (id_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
+  VALUES (OLD.id_user, 'ELIMINAR', 'QUANTITATIVES', row_to_json(OLD), NULL);
+  RETURN OLD;
 END;
-
-$$ LANGUAGE plpgSQL;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tg_delete_quantitative
-AFTER DELETE ON quantitatives
+BEFORE DELETE ON quantitatives
 FOR EACH ROW EXECUTE PROCEDURE tg_delete_quantitative();
 
 --Audit create application
 CREATE OR REPLACE FUNCTION tg_create_application()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'INSERT' THEN
-    INSERT INTO audit_activity (nick_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
-    SELECT NEW.nick_user, 'INSERTAR', 'APPLICATIONS', row_to_json(NEW.*), null;
-  END IF;
+  INSERT INTO audit_activity (id_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
+  VALUES (NEW.id_user, 'INSERTAR', 'APPLICATIONS', NULL, row_to_json(NEW));
   RETURN NEW;
 END;
-$$ LANGUAGE plpgSQL;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tg_create_application
 AFTER INSERT ON applications
@@ -411,13 +355,11 @@ FOR EACH ROW EXECUTE PROCEDURE tg_create_application();
 CREATE OR REPLACE FUNCTION tg_update_application()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'UPDATE' THEN
-    INSERT INTO audit_activity (nick_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
-    SELECT NEW.nick_user, 'ACTUALIZAR', 'APPLICATIONS', row_to_json(OLD.*), row_to_json(NEW.*);
-  END IF;
+  INSERT INTO audit_activity (id_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
+  VALUES (NEW.id_user, 'ACTUALIZAR', 'APPLICATIONS', row_to_json(OLD), row_to_json(NEW));
   RETURN NEW;
 END;
-$$ LANGUAGE plpgSQL;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tg_update_application
 AFTER UPDATE ON applications
@@ -427,30 +369,25 @@ FOR EACH ROW EXECUTE PROCEDURE tg_update_application();
 CREATE OR REPLACE FUNCTION tg_delete_application()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'DELETE' THEN
-    INSERT INTO audit_activity (nick_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
-    SELECT OLD.nick_user, 'ELIMINAR', 'APPLICATIONS', row_to_json(OLD.*), null;
-  END IF;
-  RETURN NEW;
+  INSERT INTO audit_activity (id_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
+  VALUES (OLD.id_user, 'ELIMINAR', 'APPLICATIONS', row_to_json(OLD), NULL);
+  RETURN OLD;
 END;
-
-$$ LANGUAGE plpgSQL;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tg_delete_application
-AFTER DELETE ON applications
+BEFORE DELETE ON applications
 FOR EACH ROW EXECUTE PROCEDURE tg_delete_application();
 
 --Audit create budget
 CREATE OR REPLACE FUNCTION tg_create_budget()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'INSERT' THEN
-    INSERT INTO audit_activity (nick_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
-    SELECT NEW.nick_user, 'INSERTAR', 'BUDGETS', row_to_json(NEW.*), null;
-  END IF;
+  INSERT INTO audit_activity (id_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
+  VALUES (NEW.id_user, 'INSERTAR', 'BUDGETS', NULL, row_to_json(NEW));
   RETURN NEW;
 END;
-$$ LANGUAGE plpgSQL;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tg_create_budget
 AFTER INSERT ON budgets
@@ -460,13 +397,11 @@ FOR EACH ROW EXECUTE PROCEDURE tg_create_budget();
 CREATE OR REPLACE FUNCTION tg_update_budget()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'UPDATE' THEN
-    INSERT INTO audit_activity (nick_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
-    SELECT NEW.nick_user, 'ACTUALIZAR', 'BUDGETS', row_to_json(OLD.*), row_to_json(NEW.*);
-  END IF;
+  INSERT INTO audit_activity (id_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
+  VALUES (NEW.id_user, 'ACTUALIZAR', 'BUDGETS', row_to_json(OLD), row_to_json(NEW));
   RETURN NEW;
 END;
-$$ LANGUAGE plpgSQL;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tg_update_budget
 AFTER UPDATE ON budgets
@@ -476,30 +411,25 @@ FOR EACH ROW EXECUTE PROCEDURE tg_update_budget();
 CREATE OR REPLACE FUNCTION tg_delete_budget()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'DELETE' THEN
-    INSERT INTO audit_activity (nick_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
-    SELECT OLD.nick_user, 'ELIMINAR', 'BUDGETS', row_to_json(OLD.*), null;
-  END IF;
-  RETURN NEW;
+  INSERT INTO audit_activity (id_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
+  VALUES (OLD.id_user, 'ELIMINAR', 'BUDGETS', row_to_json(OLD), NULL);
+  RETURN OLD;
 END;
-
-$$ LANGUAGE plpgSQL;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tg_delete_budget
-AFTER DELETE ON budgets
+BEFORE DELETE ON budgets
 FOR EACH ROW EXECUTE PROCEDURE tg_delete_budget();
 
 --Audit create accountability
 CREATE OR REPLACE FUNCTION tg_create_accountability()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'INSERT' THEN
-    INSERT INTO audit_activity (nick_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
-    SELECT NEW.nick_user, 'INSERTAR', 'ACCOUNTABILITIES', row_to_json(NEW.*), null;
-  END IF;
+  INSERT INTO audit_activity (id_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
+  VALUES (NEW.id_user, 'INSERTAR', 'ACCOUNTABILITIES', NULL, row_to_json(NEW));
   RETURN NEW;
 END;
-$$ LANGUAGE plpgSQL;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tg_create_accountability
 AFTER INSERT ON accountabilities
@@ -509,13 +439,11 @@ FOR EACH ROW EXECUTE PROCEDURE tg_create_accountability();
 CREATE OR REPLACE FUNCTION tg_update_accountability()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'UPDATE' THEN
-    INSERT INTO audit_activity (nick_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
-    SELECT NEW.nick_user, 'ACTUALIZAR', 'ACCOUNTABILITIES', row_to_json(OLD.*), row_to_json(NEW.*);
-  END IF;
+  INSERT INTO audit_activity (id_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
+  VALUES (NEW.id_user, 'ACTUALIZAR', 'ACCOUNTABILITIES', row_to_json(OLD), row_to_json(NEW));
   RETURN NEW;
 END;
-$$ LANGUAGE plpgSQL;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tg_update_accountability
 AFTER UPDATE ON accountabilities
@@ -525,30 +453,25 @@ FOR EACH ROW EXECUTE PROCEDURE tg_update_accountability();
 CREATE OR REPLACE FUNCTION tg_delete_accountability()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'DELETE' THEN
-    INSERT INTO audit_activity (nick_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
-    SELECT OLD.nick_user, 'ELIMINAR', 'ACCOUNTABILITIES', row_to_json(OLD.*), null;
-  END IF;
-  RETURN NEW;
+  INSERT INTO audit_activity (id_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
+  VALUES (OLD.id_user, 'ELIMINAR', 'ACCOUNTABILITIES', row_to_json(OLD), NULL);
+  RETURN OLD;
 END;
-
-$$ LANGUAGE plpgSQL;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tg_delete_accountability
-AFTER DELETE ON accountabilities
+BEFORE DELETE ON accountabilities
 FOR EACH ROW EXECUTE PROCEDURE tg_delete_accountability();
 
 --Audit create surrender
 CREATE OR REPLACE FUNCTION tg_create_surrender()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'INSERT' THEN
-    INSERT INTO audit_activity (nick_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
-    SELECT NEW.nick_user, 'INSERTAR', 'SURRENDERS', row_to_json(NEW.*), null;
-  END IF;
+  INSERT INTO audit_activity (id_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
+  VALUES (NEW.id_user, 'INSERTAR', 'SURRENDERS', NULL, row_to_json(NEW));
   RETURN NEW;
 END;
-$$ LANGUAGE plpgSQL;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tg_create_surrender
 AFTER INSERT ON surrenders
@@ -558,13 +481,11 @@ FOR EACH ROW EXECUTE PROCEDURE tg_create_surrender();
 CREATE OR REPLACE FUNCTION tg_update_surrender()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'UPDATE' THEN
-    INSERT INTO audit_activity (nick_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
-    SELECT NEW.nick_user, 'ACTUALIZAR', 'SURRENDERS', row_to_json(OLD.*), row_to_json(NEW.*);
-  END IF;
+  INSERT INTO audit_activity (id_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
+  VALUES (NEW.id_user, 'ACTUALIZAR', 'SURRENDERS', row_to_json(OLD), row_to_json(NEW));
   RETURN NEW;
 END;
-$$ LANGUAGE plpgSQL;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tg_update_surrender
 AFTER UPDATE ON surrenders
@@ -574,15 +495,12 @@ FOR EACH ROW EXECUTE PROCEDURE tg_update_surrender();
 CREATE OR REPLACE FUNCTION tg_delete_surrender()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'DELETE' THEN
-    INSERT INTO audit_activity (nick_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
-    SELECT OLD.nick_user, 'ELIMINAR', 'SURRENDERS', row_to_json(OLD.*), null;
-  END IF;
-  RETURN NEW;
+  INSERT INTO audit_activity (id_user, action_audit_activity, table_audit_activity, last_audit_activity, new_audit_activity)
+  VALUES (OLD.id_user, 'ELIMINAR', 'SURRENDERS', row_to_json(OLD), NULL);
+  RETURN OLD;
 END;
-
-$$ LANGUAGE plpgSQL;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER tg_delete_surrender
-AFTER DELETE ON surrenders
+BEFORE DELETE ON surrenders
 FOR EACH ROW EXECUTE PROCEDURE tg_delete_surrender();

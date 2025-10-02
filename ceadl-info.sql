@@ -234,10 +234,9 @@ CREATE TABLE audit_profile (
     id_user UUID NOT NULL,
     action_audit_profile varchar(20) NOT NULL,
 	table_audit_profile varchar(50) NOT NULL,
-	last_audit_profile json NOT NULL,
+	last_audit_profile json,
 	new_audit_profile json,
-	CONSTRAINT audit_profile_pk PRIMARY KEY (id_audit_profile),
-    CONSTRAINT audit_profile_user_fk FOREIGN KEY (id_user) REFERENCES users (id_user) ON UPDATE RESTRICT ON DELETE RESTRICT
+	CONSTRAINT audit_profile_pk PRIMARY KEY (id_audit_profile)
 );
 
 CREATE TABLE audit (
@@ -246,10 +245,9 @@ CREATE TABLE audit (
 	id_user UUID NOT NULL,
 	action_audit varchar(20) NOT NULL,
 	table_audit varchar(50) NOT NULL,
-	last_audit json NOT NULL,
+	last_audit json,
 	new_audit json,
-	CONSTRAINT audit_pk PRIMARY KEY (id_audit),
-    CONSTRAINT audit_user_fk FOREIGN KEY (id_user) REFERENCES users (id_user) ON UPDATE RESTRICT ON DELETE RESTRICT
+	CONSTRAINT audit_pk PRIMARY KEY (id_audit)
 );
 
 CREATE TABLE audit_activity (
@@ -258,10 +256,9 @@ CREATE TABLE audit_activity (
 	id_user UUID NOT NULL,
 	action_audit_activity varchar(20) NOT NULL,
 	table_audit_activity varchar(50) NOT NULL,
-	last_audit_activity json NOT NULL,
+	last_audit_activity json,
 	new_audit_activity json,
-	CONSTRAINT audit_activity_pk PRIMARY KEY (id_audit_activity),
-    CONSTRAINT audit_activity_user_fk FOREIGN KEY (id_user) REFERENCES users (id_user) ON UPDATE RESTRICT ON DELETE RESTRICT
+	CONSTRAINT audit_activity_pk PRIMARY KEY (id_audit_activity)
 );
 
 --Bases de datos

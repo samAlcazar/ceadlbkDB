@@ -16,7 +16,7 @@ SELECT validate_super_user(
 SELECT * FROM profiles;
 SELECT create_profile(
     'Director'::varchar,
-    '57d9125f-79f0-412e-be0c-dabd44c8ec08'::uuid
+    '903f1648-66a3-41a5-8b86-4a2cbaf4a855'::uuid
 ); --Funciona
 SELECT update_profile(
     'e2189724-e5e1-4f69-9d45-f58ae81c1c16'::uuid,
@@ -29,28 +29,28 @@ SELECT delete_profile(
 -- Tests para user
 SELECT * FROM users;
 SELECT create_user(
-    'Samuel Alejandro Alcazar'::varchar,
-    'saalcazar'::varchar,
+    'Samuel Alejandro'::varchar,
+    'saalcazar654'::varchar,
     'a1b2c3d4c0'::varchar,
     'cargo'::varchar,
-    'firma'::varchar,
-    '20d22d3e-1107-4591-9246-b50f0d30edc8'::uuid,
-    '57d9125f-79f0-412e-be0c-dabd44c8ec08'::uuid,
+    'firmakjh'::varchar,
+    'cbcddd45-9db4-4346-a229-4cb9a6e8e545'::uuid,
+    '903f1648-66a3-41a5-8b86-4a2cbaf4a855'::uuid,
     'e2189724-e5e1-4f69-9d45-f58ae81c1c16'::uuid
 ); --Funciona
 SELECT update_user(
-    'f338dbde-b565-43db-adeb-e5b5c469e00a'::uuid,
+    'd87bc509-c518-49ce-ac49-2a87b375eb8b'::uuid,
     'saalcazar'::varchar,
     'nickuser'::varchar,
     'pass'::varchar,
     'cargo'::varchar,
     'firma'::varchar,
-    '20d22d3e-1107-4591-9246-b50f0d30edc8'::uuid,
-    '57d9125f-79f0-412e-be0c-dabd44c8ec08'::uuid,
+    'cbcddd45-9db4-4346-a229-4cb9a6e8e545'::uuid,
+    '903f1648-66a3-41a5-8b86-4a2cbaf4a855'::uuid,
     'e2189724-e5e1-4f69-9d45-f58ae81c1c16'::uuid
 ); --Funciona
 SELECT delete_user(
-    'f338dbde-b565-43db-adeb-e5b5c469e00a'::uuid
+    'd87bc509-c518-49ce-ac49-2a87b375eb8b'::uuid
 ); --Funciona
 SELECT validate_user(
     'saalcazar'::varchar,
