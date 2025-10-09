@@ -100,6 +100,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- VALIDATE USER
+DROP FUNCTION IF EXISTS validate_user(VARCHAR, VARCHAR);
 CREATE OR REPLACE FUNCTION validate_user(
     _nick_user VARCHAR,
     _password_user VARCHAR
@@ -114,7 +115,7 @@ BEGIN
     WHERE nick_user = _nick_user 
       AND PGP_SYM_DECRYPT(password_user::bytea, 'AES_KEY') = _password_user;
 
-    IF _user_data IS NOT NULL THEN
+    IF _user_data.id_user IS NOT NULL THEN
         RETURN jsonb_build_object(
             'id_user', _user_data.id_user,
             'name_user', _user_data.name_user,
@@ -129,5 +130,8 @@ BEGIN
     ELSE
         RETURN jsonb_build_object('validated', false);
     END IF;
+EXCEPTION
+    WHEN OTHERS THEN
+        RETURN jsonb_build_object('validated', false, 'error', SQLERRM);
 END;
 $$ LANGUAGE plpgsql;

@@ -54,7 +54,7 @@ SELECT delete_user(
 ); --Funciona
 SELECT validate_user(
     'saalcazar'::varchar,
-    'a1b2c3d4c0'::varchar
+    '123789'::varchar
 ); --Funciona
 
 -- Tests para founder
